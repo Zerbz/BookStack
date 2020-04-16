@@ -17,7 +17,7 @@ return [
     // Enter the application in debug mode.
     // Shows much more verbose error messages. Has potential to show
     // private configuration variables so should remain disabled in public.
-    'debug' => env('APP_DEBUG', true),
+    'debug' => env('APP_DEBUG', false),
 
     // Set the default view type for various lists. Can be overridden by user preferences.
     // These will be used for public viewers and users that have not set a preference.
