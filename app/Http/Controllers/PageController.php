@@ -148,7 +148,7 @@ class PageController extends Controller
         $user = user();
 
         // If the current page is favorited by this user, display unfavorite instead.
-        $favoriteStatus = 'favorite';
+        $favoriteStatus = 'Favorite';
 
         $exists = \BookStack\Favorite::where('userid', $user->id)
                                    ->where('book', $bookSlug)
