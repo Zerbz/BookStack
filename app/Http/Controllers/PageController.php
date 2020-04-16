@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 use Views;
+use BookStack\Favorite;
 
 class PageController extends Controller
 {
@@ -143,6 +144,19 @@ class PageController extends Controller
         if ($commentsEnabled) {
             $page->load(['comments.createdBy']);
         }
+        
+        $user = user();
+
+        // If the current page is favorited by this user, display unfavorite instead.
+        $favoriteStatus = 'favorite';
+
+        $exists = \BookStack\Favorite::where('userid', $user->id)
+                                   ->where('book', $bookSlug)
+                                   ->where('page', $pageSlug)->exists();
+
+        if($exists){
+           $favoriteStatus = 'Unfavorite';
+        }
 
         Views::add($page);
         $this->setPageTitle($page->getShortName());
@@ -152,7 +166,8 @@ class PageController extends Controller
             'current' => $page,
             'sidebarTree' => $sidebarTree,
             'commentsEnabled' => $commentsEnabled,
-            'pageNav' => $pageNav
+            'pageNav' => $pageNav,
+            'status' => $favoriteStatus
         ]);
     }
 
@@ -208,6 +223,64 @@ class PageController extends Controller
         ]);
     }
 
+    // The favorite function will add the page to the users favorites allowing for quick navigation from the user profile page.
+    public function favorite($bookSlug, $pageSlug, $status)
+    {   
+        // Retrieve the page and book by its slugs
+        $page = $this->pageRepo->getBySlug($bookSlug, $pageSlug);
+        
+        $user = user();
+
+        $sidebarTree = (new BookContents($page->book))->getTree();
+
+        // check if the comment's are enabled
+        $commentsEnabled = !setting('app-disable-comments');
+        if ($commentsEnabled) {
+            $page->load(['comments.createdBy']);
+        }     
+
+        Views::add($page);
+        $this->setPageTitle($page->getShortName());
+
+        $favoriteStatus = $status;
+
+        if($status == 'Favorite'){
+            // Update favorites table with the newly added favorite.
+            $favorite = new Favorite;
+
+            $favorite->userid = $user->id;
+            $favorite->book = $bookSlug;
+            $favorite->page = $pageSlug;
+            $favorite->title = $page->getShortName();
+            $favorite->pageid = $page->id;
+            $favorite->bookid = $page->book->id;
+            
+            $favorite->save();
+
+            // Set the status to unfavorite
+            $favoriteStatus = 'Unfavorite';
+        }
+        else if($status == 'Unfavorite'){
+            // Remove the favorite 
+            
+            $favorite = Favorite::where('userid', $user->id)
+                                                ->where('book', $bookSlug)
+                                                ->where('page', $pageSlug)->first();
+            $favorite->delete();
+            $favoriteStatus = 'Favorite';
+        }
+
+        return view('pages/show', [
+            'page' => $page,
+            'book' => $page->book,
+            'current' => $page,
+            'sidebarTree' => $sidebarTree,
+            'commentsEnabled' => $commentsEnabled,
+            'status' => $favoriteStatus
+        ]);  
+    }
+
+
     /**
      * Update the specified page in storage.
      * @throws ValidationException
@@ -218,7 +291,9 @@ class PageController extends Controller
         $this->validate($request, [
             'name' => 'required|string|max:255'
         ]);
-        $page = $this->pageRepo->getBySlug($bookSlug, $pageSlug);
+
+        $page = $this->pageRepo->getBySlug($bookSlug, $pageSlug); 
+
         $this->checkOwnablePermission('page-update', $page);
 
         $this->pageRepo->update($page, $request->all());

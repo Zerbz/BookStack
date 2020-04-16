@@ -118,6 +118,12 @@
         <div class="icon-list text-primary">
 
             {{--User Actions--}}
+            @auth
+                <a href="{{ $page->getUrl('/favorite')}}/{{$status}}" class="icon-list-item">
+                    <span>@icon('star')</span>
+                    <span>{{$status}}</span>
+                </a>
+            @endauth
             @if(userCan('page-update', $page))
                 <a href="{{ $page->getUrl('/edit') }}" class="icon-list-item">
                     <span>@icon('edit')</span>
@@ -154,7 +160,6 @@
                     <span>{{ trans('common.delete') }}</span>
                 </a>
             @endif
-
             <hr class="primary-background"/>
 
             {{--Export--}}

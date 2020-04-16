@@ -12,6 +12,7 @@ use BookStack\Uploads\AttachmentService;
 use BookStack\Uploads\ImageService;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Favorite;
 
 class TrashCan
 {
@@ -67,6 +68,9 @@ class TrashCan
         foreach ($page->attachments as $attachment) {
             $attachmentService->deleteFile($attachment);
         }
+
+        // Delete the favorites that are associated with this page.
+        \BookStack\Favorite::where('pageid', $page->id)->delete();
 
         $page->delete();
     }

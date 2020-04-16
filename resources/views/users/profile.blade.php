@@ -57,6 +57,23 @@
                 </section>
 
                 <section class="card content-wrap auto-height book-contents">
+                    <h3 id="recent-pages">Favorites</h3>
+                    @if (count($favorites) > 0)           
+                        <ul class="favoritesList">
+                            @foreach($favorites as $favorite)
+                                <li class="text-page favoriteItem" data-type="page">
+                                <h4>
+                                    <a href="/books/{{$favorite->book}}/page/{{$favorite->page}}">@icon('star'){{$favorite->title}}</a>
+                                    </h4>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-muted">You do not have any favorites yet!</p>
+                    @endif
+                </section>
+
+                <section class="card content-wrap auto-height book-contents">
                     <h2 id="recent-pages" class="list-heading">
                         {{ trans('entities.recently_created_pages') }}
                         @if (count($recentlyCreated['pages']) > 0)

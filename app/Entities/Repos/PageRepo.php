@@ -15,6 +15,7 @@ use BookStack\Exceptions\PermissionsException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Favorite;
 
 class PageRepo
 {
@@ -203,6 +204,8 @@ class PageRepo
             $this->savePageRevision($page, $summary);
         }
 
+        // Update the favorites table with the new changes.
+        \BookStack\Favorite::where('pageid', $page->id)->update(['page' => $page->slug,'title' => $page->getShortName()]);
         return $page;
     }
 

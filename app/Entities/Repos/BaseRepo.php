@@ -10,6 +10,7 @@ use BookStack\Exceptions\ImageUploadException;
 use BookStack\Uploads\ImageRepo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Favorite;
 
 class BaseRepo
 {
