@@ -12,6 +12,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Favorite;
 
 class BookRepo
 {
@@ -100,6 +101,7 @@ class BookRepo
     public function update(Book $book, array $input): Book
     {
         $this->baseRepo->update($book, $input);
+        \BookStack\Favorite::where('bookid', $book->id)->update(['book' => $book->slug]);
         return $book;
     }
 

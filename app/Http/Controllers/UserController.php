@@ -8,6 +8,7 @@ use BookStack\Exceptions\UserUpdateException;
 use BookStack\Uploads\ImageRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Favorite;
 
 class UserController extends Controller
 {
@@ -249,11 +250,15 @@ class UserController extends Controller
         $recentlyCreated = $this->userRepo->getRecentlyCreated($user, 5);
         $assetCounts = $this->userRepo->getAssetCounts($user);
 
+        // Retrieve all of the user's favorites to be displayed.
+        $favorites = \BookStack\Favorite::where('userid', $user->id)->get();
+
         return view('users.profile', [
             'user' => $user,
             'activity' => $userActivity,
             'recentlyCreated' => $recentlyCreated,
-            'assetCounts' => $assetCounts
+            'assetCounts' => $assetCounts,
+            'favorites' => $favorites
         ]);
     }
 
